@@ -138,9 +138,11 @@
     <ClCompile Include="External\glad\src\glad.c" />
     <ClCompile Include="gl2d.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="object.cpp" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="object.h" />
     <ClInclude Include="gl2d.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

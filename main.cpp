@@ -2,24 +2,32 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "gl2d.h"
+#include "object.h"
 
 unsigned int windowWidth = 800;
 unsigned int windowHeight = 800;
 
-gl2d::Renderer2D renderer;
+struct gameData {
+	std::vector<Object> objects = {};
+};
 
-bool gameLogic(GLFWwindow* window) {
+gl2d::Renderer2D renderer;
+gameData data;
+
+bool gameLogic(GLFWwindow* window, float deltatime) {
 	glViewport(0, 0, windowWidth, windowHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 	renderer.updateWindowMetrics(windowWidth, windowHeight);
-	renderer.clearScreen({ 0.0f, 0.0f, 0.0f, 0.0f });
+	renderer.clearScreen({ 0.0f, 0.0f, 0.0f, 1.0f });
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	renderer.renderCircleOutline({ 400, 400 }, 40, Colors_White, 2, 64);
+	for (int i = 0; i < data.objects.size(); i++) {
+		data.objects[i].render(renderer);
+		data.objects[i].step(deltatime);
+	}
 
 	renderer.flush();
 
@@ -49,8 +57,18 @@ int main() {
 	gl2d::init();
 	renderer.create();
 
+	Object obj({ 400, 400 }, {200, 150}, 20);
+	data.objects.push_back(obj);
+
+	float lastframe = 0;
+	float deltatime = 0;
+
 	while (!glfwWindowShouldClose(window)) {
-		gameLogic(window);
+		float currentframe = glfwGetTime();
+		deltatime = currentframe - lastframe;
+		lastframe = currentframe;
+
+		gameLogic(window, deltatime);
 	}
 
 	renderer.cleanup();
