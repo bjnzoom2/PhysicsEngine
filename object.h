@@ -12,5 +12,7 @@ public:
 
 	void render(gl2d::Renderer2D& renderer);
 
-	void step(float deltatime, Wall wall);
+	void collideWithLine(const glm::dvec2& linePoint, const glm::dvec2& normal, glm::dvec2& position, glm::dvec2& velocity, double radius);
+
+	void step(float deltatime, std::vector<Wall> walls);
 };
