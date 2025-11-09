@@ -1,5 +1,6 @@
 #pragma once
 #include "gl2d.h"
+#include "wall.h"
 
 class Object {
 public:
@@ -11,5 +12,5 @@ public:
 
 	void render(gl2d::Renderer2D& renderer);
 
-	void step(float deltatime);
+	void step(float deltatime, Wall wall);
 };

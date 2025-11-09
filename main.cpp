@@ -3,12 +3,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "object.h"
+#include "wall.h"
 
 unsigned int windowWidth = 800;
 unsigned int windowHeight = 800;
 
 struct gameData {
 	std::vector<Object> objects = {};
+	std::vector<Wall> walls = {};
 };
 
 gl2d::Renderer2D renderer;
@@ -24,9 +26,15 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 		glfwSetWindowShouldClose(window, true);
 	}
 
+	for (int i = 0; i < data.walls.size(); i++) {
+		data.walls[i].render(renderer);
+	}
+
 	for (int i = 0; i < data.objects.size(); i++) {
 		data.objects[i].render(renderer);
-		data.objects[i].step(deltatime);
+		for (auto& wall : data.walls) {
+			data.objects[i].step(deltatime, wall);
+		}
 	}
 
 	renderer.flush();
@@ -56,6 +64,11 @@ int main() {
 
 	gl2d::init();
 	renderer.create();
+
+	Wall wall({ 0, 600 }, 0, 600);
+	Wall wall2({ 800, 200 }, 0, -600);
+	data.walls.push_back(wall);
+	data.walls.push_back(wall2);
 
 	Object obj({ 400, 400 }, {200, 150}, 20);
 	data.objects.push_back(obj);
