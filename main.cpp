@@ -63,13 +63,11 @@ int main() {
 	gl2d::init();
 	renderer.create();
 
-	Wall wall({ -300, 0 }, -45, 1600);
-	Wall wall2({ 300, 0 }, -45, 1600);
-	data.walls.push_back(wall);
-	data.walls.push_back(wall2);
-
-	Object obj({ 400, 400 }, {200, 300}, 20);
+	Object obj({ 400, 400 }, { 0, 0 }, 20);
 	data.objects.push_back(obj);
+
+	Wall wall({ 200, 600 }, 0, 400);
+	data.walls.push_back(wall);
 
 	float lastframe = 0;
 	float deltatime = 0;
