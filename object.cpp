@@ -7,30 +7,41 @@ void Object::render(gl2d::Renderer2D& renderer) {
 	renderer.renderCircleOutline(position, radius, Colors_White, 2, 64);
 }
 
-void Object::collideWithLine(const glm::dvec2& linePoint, const glm::dvec2& normal, const glm::dvec2& perpendicularNormal, glm::dvec2& position, glm::dvec2& velocity, double radius, float wallLength) {
+void Object::collideWithLine(const glm::dvec2& linePoint, const glm::dvec2& normal, const glm::dvec2& perpendicularNormal, glm::dvec2& position, glm::dvec2& velocity, double radius, float wallLength, glm::dvec2 dir) {
     glm::dvec2 n = normal;
     double distance = glm::dot(position - linePoint, n);
     double distanceAlongLine = glm::dot(position - linePoint, perpendicularNormal);
+    glm::dvec2 point;
 
     if (distance < 0.0) {
         n = -n;
         distance = -distance;
     }
 
-    if (distanceAlongLine + radius > 0 && distanceAlongLine - radius < wallLength) {
-        if (std::abs(distance) < radius)
-        {
-            glm::dvec2 tangent(normal.y, -normal.x);
+    if (glm::distance(position, linePoint) < glm::distance(position, linePoint + (double)wallLength * glm::normalize(dir))) {
+        point = linePoint;
+    }
+    else {
+        point = linePoint + (double)wallLength * glm::normalize(dir);
+    }
+
+    if (std::abs(distance) < radius) {
+        if (distanceAlongLine + radius >= 0 && distanceAlongLine - radius <= wallLength) {
+            if (distanceAlongLine + radius < 0.5 || distanceAlongLine - radius > wallLength - 0.5) {
+                n = glm::normalize(position - point);
+            }
+            glm::dvec2 tangent(n.y, -n.x);
 
             double speedAlongNormal = glm::dot(velocity, n);
             double speedAlongTangent = glm::dot(velocity, tangent);
 
-            if (speedAlongNormal <= 0.0)
-            {
+            if (speedAlongNormal <= 0.0) {
                 velocity = (-speedAlongNormal * n) + (speedAlongTangent * tangent);
 
-                double penetration = radius - std::abs(distance);
-                position += n * penetration;
+                if (n != glm::normalize(position - point)) {
+                    double penetration = radius - std::abs(distance);
+                    position += n * penetration;
+                }
             }
         }
     }
@@ -53,7 +64,7 @@ void Object::step(float deltatime, std::vector<Wall> walls) {
         glm::dvec2 normal = glm::normalize(glm::dvec2(dir.y, dir.x));
         glm::dvec2 perpendicularNormal = glm::dvec2(normal.y, -normal.x);
 
-        collideWithLine(wall.position, normal, perpendicularNormal, position, velocity, radius, wall.length);
+        collideWithLine(wall.position, normal, perpendicularNormal, position, velocity, radius, wall.length, dir);
         
         // std::cout << normal.x << ' ' << normal.y << '\n';
     }
