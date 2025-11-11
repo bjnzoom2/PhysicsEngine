@@ -1,7 +1,7 @@
 #include "object.h"
 #include <iostream>
 
-Object::Object(glm::dvec2 pos, glm::dvec2 velo, float rad) : position(pos), velocity(velo), radius(rad) {};
+Object::Object(glm::dvec2 pos, glm::dvec2 velo, float rad) : position(pos), velocity(velo), radius(rad) {}
 
 void Object::render(gl2d::Renderer2D& renderer) {
 	renderer.renderCircleOutline(position, radius, Colors_White, 2, 64);
@@ -45,17 +45,33 @@ void Object::collideWithLine(const glm::dvec2& linePoint, const glm::dvec2& norm
             }
         }
     }
-
-    std::cout << distanceAlongLine << '\n';
 }
 
-void Object::step(float deltatime, std::vector<Wall> walls) {
+void Object::collideWithObject(Object& otherObj) {
+    float distance = glm::distance(position, otherObj.position);
+    glm::dvec2 normal = (position - otherObj.position) / (double)distance;
+
+    if (distance <= radius + otherObj.radius) {
+        glm::dvec2 tangent(normal.y, -normal.x);
+
+        double relativeSpeedAlongNormal = glm::dot(velocity - otherObj.velocity, normal);
+        double relativeSpeedAlongTangent = glm::dot(velocity - otherObj.velocity, tangent);
+
+        glm::dvec2 force = relativeSpeedAlongTangent / 2 * tangent;
+        force += relativeSpeedAlongNormal * normal;
+
+        velocity -= force;
+        otherObj.velocity += force;
+    }
+}
+
+void Object::step(float deltatime, std::vector<Wall>& walls, std::vector<Object> &objects) {
 	if (position.y + radius >= 800) { if (velocity.y > 0) velocity.y = -velocity.y; }
 	if (position.y - radius <= 0) { if (velocity.y < 0) velocity.y = -velocity.y; }
 	if (position.x + radius >= 800) { if (velocity.x > 0) velocity.x = -velocity.x; }
 	if (position.x - radius <= 0) { if (velocity.x < 0) velocity.x = -velocity.x; }
 
-    velocity.y += 400 * deltatime;
+    // velocity.y += 400 * deltatime;
 	position += velocity * (double)deltatime;
 
     for (auto& wall : walls) {
@@ -65,7 +81,10 @@ void Object::step(float deltatime, std::vector<Wall> walls) {
         glm::dvec2 perpendicularNormal = glm::dvec2(normal.y, -normal.x);
 
         collideWithLine(wall.position, normal, perpendicularNormal, position, velocity, radius, wall.length, dir);
-        
-        // std::cout << normal.x << ' ' << normal.y << '\n';
+    }
+
+    for (int i = 0; i < objects.size(); i++) {
+        if (this == &objects[i]) continue;
+        collideWithObject(objects[i]);
     }
 }

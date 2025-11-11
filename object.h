@@ -14,5 +14,7 @@ public:
 
 	void collideWithLine(const glm::dvec2& linePoint, const glm::dvec2& normal, const glm::dvec2& perpendicularNormal, glm::dvec2& position, glm::dvec2& velocity, double radius, float wallLength, glm::dvec2 dir);
 
-	void step(float deltatime, std::vector<Wall> walls);
+	void collideWithObject(Object& otherObj);
+
+	void step(float deltatime, std::vector<Wall>& walls, std::vector<Object> &objects);
 };

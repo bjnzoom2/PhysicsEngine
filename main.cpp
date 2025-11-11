@@ -32,7 +32,7 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 
 	for (int i = 0; i < data.objects.size(); i++) {
 		data.objects[i].render(renderer);
-		data.objects[i].step(deltatime, data.walls);
+		data.objects[i].step(deltatime, data.walls, data.objects);
 	}
 
 	renderer.flush();
@@ -63,8 +63,10 @@ int main() {
 	gl2d::init();
 	renderer.create();
 
-	Object obj({ 400, 400 }, { 0, 0 }, 20);
+	Object obj({ 600, 400 }, { -50, 0 }, 20);
+	Object obj2({ 200, 400 }, { 50, 0 }, 20);
 	data.objects.push_back(obj);
+	data.objects.push_back(obj2);
 
 	Wall wall({ 200, 600 }, 0, 400);
 	data.walls.push_back(wall);
