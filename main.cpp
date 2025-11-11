@@ -11,6 +11,9 @@ unsigned int windowHeight = 800;
 struct gameData {
 	std::vector<Object> objects = {};
 	std::vector<Wall> walls = {};
+
+	float restitution = 0.9;
+	float friction = 0.001;
 };
 
 gl2d::Renderer2D renderer;
@@ -32,7 +35,7 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 
 	for (int i = 0; i < data.objects.size(); i++) {
 		data.objects[i].render(renderer);
-		data.objects[i].step(deltatime, data.walls, data.objects);
+		data.objects[i].step(deltatime, data.walls, data.objects, data.friction, data.restitution);
 	}
 
 	renderer.flush();
