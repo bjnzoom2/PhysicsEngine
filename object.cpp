@@ -66,13 +66,13 @@ void Object::collideWithObject(Object& otherObj, float friction, float restituti
     }
 }
 
-void Object::step(float deltatime, std::vector<Wall>& walls, std::vector<Object> &objects, float friction, float restitution) {
+void Object::step(float deltatime, std::vector<Wall>& walls, std::vector<Object>& objects, float friction, float restitution) {
 	if (position.y + radius >= 800) { if (velocity.y > 0) velocity.y = -velocity.y; }
 	if (position.y - radius <= 0) { if (velocity.y < 0) velocity.y = -velocity.y; }
 	if (position.x + radius >= 800) { if (velocity.x > 0) velocity.x = -velocity.x; }
 	if (position.x - radius <= 0) { if (velocity.x < 0) velocity.x = -velocity.x; }
 
-    velocity.y += 400 * deltatime;
+    // velocity.y += 400 * deltatime;
 	position += velocity * (double)deltatime;
 
     for (auto& wall : walls) {

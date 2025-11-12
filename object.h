@@ -4,6 +4,8 @@
 
 class Object {
 public:
+	Object() = default;
+
 	Object(glm::dvec2 pos, glm::dvec2 velo, float rad);
 
 	glm::dvec2 position = { 400, 400 };

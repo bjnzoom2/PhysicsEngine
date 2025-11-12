@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "object.h"
 #include "wall.h"
+#include "spring.h"
 
 unsigned int windowWidth = 800;
 unsigned int windowHeight = 800;
@@ -11,6 +12,7 @@ unsigned int windowHeight = 800;
 struct gameData {
 	std::vector<Object> objects = {};
 	std::vector<Wall> walls = {};
+	std::vector<Spring> springs = {};
 
 	float restitution = 0.9;
 	float friction = 0.001;
@@ -29,16 +31,23 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	for (int i = 0; i < data.walls.size(); i++) {
-		data.walls[i].render(renderer);
-	}
-
 	for (int i = 0; i < data.objects.size(); i++) {
 		data.objects[i].render(renderer);
 		data.objects[i].step(deltatime, data.walls, data.objects, data.friction, data.restitution);
 	}
 
+	for (int i = 0; i < data.walls.size(); i++) {
+		data.walls[i].render(renderer);
+	}
+
+	for (int i = 0; i < data.springs.size(); i++) {
+		data.springs[i].render(renderer);
+		data.springs[i].step(deltatime);
+	}
+
 	renderer.flush();
+
+	std::cout << glm::distance(data.objects[0].position, data.objects[1].position) << '\n';
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();
@@ -66,13 +75,16 @@ int main() {
 	gl2d::init();
 	renderer.create();
 
-	Object obj({ 600, 400 }, { -50, 0 }, 20);
-	Object obj2({ 200, 400 }, { 50, 0 }, 20);
+	Object obj({ 600, 400 }, {}, 20);
+	Object obj2({ 200, 400 }, {}, 20);
 	data.objects.push_back(obj);
 	data.objects.push_back(obj2);
 
-	Wall wall({ 200, 600 }, 0, 400);
+	Wall wall({ 0, 600 }, 0, 800);
 	data.walls.push_back(wall);
+
+	Spring spr(data.objects[0], data.objects[1], 300, 1);
+	data.springs.push_back(spr);
 
 	float lastframe = 0;
 	float deltatime = 0;
