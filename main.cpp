@@ -5,6 +5,9 @@
 #include "object.h"
 #include "wall.h"
 #include "spring.h"
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_glfw.h>
 
 unsigned int windowWidth = 800;
 unsigned int windowHeight = 800;
@@ -13,7 +16,9 @@ struct gameData {
 	std::vector<Object> objects = {};
 	std::vector<Wall> walls = {};
 	std::vector<Spring> springs = {};
+	glm::dvec2 cursorPos = {};
 
+	float timer;
 	float restitution = 0.9;
 	float friction = 0.001;
 };
@@ -26,9 +31,17 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	renderer.updateWindowMetrics(windowWidth, windowHeight);
 	renderer.clearScreen({ 0.0f, 0.0f, 0.0f, 1.0f });
+	data.timer += deltatime;
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && data.timer > 0.2) {
+		glfwGetCursorPos(window, &data.cursorPos.x, &data.cursorPos.y);
+		Object obj(data.cursorPos, {}, 20);
+		data.objects.push_back(obj);
+		data.timer = 0;
 	}
 
 	for (int i = 0; i < data.objects.size(); i++) {
@@ -47,7 +60,19 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 
 	renderer.flush();
 
-	std::cout << glm::distance(data.objects[0].position, data.objects[1].position) << '\n';
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("Debug");
+	ImGui::Text("Object count: %d", (int)data.objects.size());
+	ImGui::Text("Wall count: %d", (int)data.walls.size());
+	ImGui::Text("Spring count: %d", (int)data.springs.size());
+
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();
@@ -75,19 +100,22 @@ int main() {
 	gl2d::init();
 	renderer.create();
 
-	Object obj({ 600, 400 }, {}, 20);
-	Object obj2({ 200, 400 }, {}, 20);
-	data.objects.push_back(obj);
-	data.objects.push_back(obj2);
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	Wall wall({ 0, 600 }, 0, 800);
 	data.walls.push_back(wall);
 
-	Spring spr(data.objects[0], data.objects[1], 300, 1);
-	data.springs.push_back(spr);
+	// Spring spr(data.objects[0], data.objects[1], 100, 1);
+	// data.springs.push_back(spr);
 
 	float lastframe = 0;
 	float deltatime = 0;
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 	while (!glfwWindowShouldClose(window)) {
 		float currentframe = glfwGetTime();
