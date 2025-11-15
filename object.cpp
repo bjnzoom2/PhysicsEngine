@@ -63,6 +63,9 @@ void Object::collideWithObject(Object& otherObj, float friction, float restituti
 
         velocity -= force;
         otherObj.velocity += force;
+
+        double penetration = (radius + otherObj.radius) - distance;
+        position += normal * penetration;
     }
 }
 
