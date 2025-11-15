@@ -4,6 +4,7 @@
 class Wall {
 public:
 	Wall(glm::dvec2 pos, float ang, float leng);
+	Wall(glm::dvec2 startPos, glm::dvec2 endPos);
 
 	glm::dvec2 position;
 	float angle;

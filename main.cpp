@@ -18,6 +18,9 @@ struct gameData {
 	std::vector<Spring> springs = {};
 	glm::dvec2 cursorPos = {};
 
+	glm::dvec2 wallStartPos = {};
+
+	bool QKeyState = false;
 	float timer;
 	float restitution = 0.9;
 	float friction = 0.001;
@@ -43,6 +46,27 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 		data.objects.push_back(obj);
 		data.timer = 0;
 	}
+
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && data.timer > 0.2) {
+		glfwGetCursorPos(window, &data.cursorPos.x, &data.cursorPos.y);
+		if (!data.QKeyState) {
+			data.wallStartPos = data.cursorPos;
+		}
+		else {
+			Wall wall(data.wallStartPos, data.cursorPos);
+			data.walls.push_back(wall);
+		}
+
+		data.QKeyState = !data.QKeyState;
+		data.timer = 0;
+	}
+
+	if (data.QKeyState) {
+		glfwGetCursorPos(window, &data.cursorPos.x, &data.cursorPos.y);
+		renderer.renderLine(data.wallStartPos, data.cursorPos, Colors_White, 5);
+	}
+
+	std::cout << data.QKeyState << '\n';
 
 	for (int i = 0; i < data.objects.size(); i++) {
 		data.objects[i].render(renderer);
