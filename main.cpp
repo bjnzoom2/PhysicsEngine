@@ -66,8 +66,6 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 		renderer.renderLine(data.wallStartPos, data.cursorPos, Colors_White, 5);
 	}
 
-	std::cout << data.QKeyState << '\n';
-
 	for (int i = 0; i < data.objects.size(); i++) {
 		data.objects[i].render(renderer);
 		data.objects[i].step(deltatime, data.walls, data.objects, data.friction, data.restitution);
@@ -92,6 +90,12 @@ bool gameLogic(GLFWwindow* window, float deltatime) {
 	ImGui::Text("Object count: %d", (int)data.objects.size());
 	ImGui::Text("Wall count: %d", (int)data.walls.size());
 	ImGui::Text("Spring count: %d", (int)data.springs.size());
+
+	if (ImGui::Button("Clear All")) {
+		data.objects.clear();
+		data.walls.clear();
+		data.springs.clear();
+	}
 
 	ImGui::End();
 
@@ -129,12 +133,6 @@ int main() {
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-
-	Wall wall({ 0, 600 }, 0, 800);
-	data.walls.push_back(wall);
-
-	// Spring spr(data.objects[0], data.objects[1], 100, 1);
-	// data.springs.push_back(spr);
 
 	float lastframe = 0;
 	float deltatime = 0;
